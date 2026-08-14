@@ -2,6 +2,8 @@ package com.barberia.barberiabackend.cita;
 
 import com.barberia.barberiabackend.usuario.Usuario;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +30,8 @@ public class CitaController {
         );
     }
 
-    @GetMapping("/mias")
+    @GetMapping("/agenda")
+    @PreAuthorize("hasRole('BARBERO')")
     public Object misCitas(@AuthenticationPrincipal Usuario cliente) {
         return citaRepository.findByClienteId(cliente.getId());
     }

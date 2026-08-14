@@ -3,6 +3,8 @@ package com.barberia.barberiabackend.barbero;
 import com.barberia.barberiabackend.usuario.Usuario;
 import com.barberia.barberiabackend.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +23,7 @@ public class BarberoController {
     }
 
     @PostMapping("/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Barbero crear(@PathVariable Long usuarioId, @RequestBody Barbero datos) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
