@@ -44,6 +44,42 @@ public class CitaService {
 
         return citaRepository.save(cita);
     }
+    @Transactional
+public Cita cancelarCita(Long citaId, Usuario solicitante) {
+    Cita cita = citaRepository.findById(citaId)
+            .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+    boolean esDueño = cita.getCliente().getId().equals(solicitante.getId());
+    boolean esAdmin = solicitante.getRol().name().equals("ADMIN");
+
+    if (!esDueño && !esAdmin) {
+        throw new IllegalArgumentException("No puedes cancelar una cita que no es tuya");
+    }
+
+    if (cita.getEstado() == EstadoCita.COMPLETADA) {
+        throw new IllegalArgumentException("No se puede cancelar una cita ya completada");
+    }
+
+    cita.setEstado(EstadoCita.CANCELADA);
+    return citaRepository.save(cita);
+}
+
+@Transactional
+public Cita completarCita(Long citaId, Usuario barberoUsuario) {
+    Cita cita = citaRepository.findById(citaId)
+            .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+    if (!cita.getBarbero().getUsuario().getId().equals(barberoUsuario.getId())) {
+        throw new IllegalArgumentException("No puedes completar una cita que no es tuya");
+    }
+
+    if (cita.getEstado() == EstadoCita.CANCELADA) {
+        throw new IllegalArgumentException("No se puede completar una cita cancelada");
+    }
+
+    cita.setEstado(EstadoCita.COMPLETADA);
+    return citaRepository.save(cita);
+}
 
     private void validarDentroDeHorarioLaboral(Barbero barbero, LocalDateTime fechaHora, int duracionMinutos) {
         List<HorarioDisponible> horarios = horarioRepository
